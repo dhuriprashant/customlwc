@@ -1,0 +1,14 @@
+<!-- myMapComponent.html -->
+<template>
+    <template for:each={myMapArray} for:item="item">
+        <lightning-card key={item.key} title={item.key}>
+            <div>
+                <lightning-datatable
+                    key-field="name"
+                    data={item.value}
+                    columns={columns}>
+                </lightning-datatable>
+            </div>
+        </lightning-card>
+    </template>
+</template>
