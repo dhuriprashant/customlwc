@@ -6,3 +6,5 @@
 //     SFDX: Execute Anonymous Apex with Editor Contents
 
 System.debug(Utility.getObjectRelationships('Case'));
+
+System.debug(Utility.getAllObjectNamesAndLabels());
