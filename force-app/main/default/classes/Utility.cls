@@ -1,5 +1,5 @@
 public class Utility {
-  public static List<String> getAllObjectNamesAndLabels() {
+  public static String getAllObjectNamesAndLabels() {
     List<String> objectNamesAndLabels = new List<String>();
     Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
     for (String objectName : globalDescribe.keySet()) {
@@ -18,7 +18,7 @@ public class Utility {
           describeSObjectResult.getLabel()
       );
     }
-    return objectNamesAndLabels;
+    return JSON.serialize(objectNamesAndLabels);
   }
 
   public static String getObjectRelationships(String objectName) {
