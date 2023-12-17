@@ -86,5 +86,8 @@ public class Utility {
 And here's how you can get an instance of a named binding:
 IMyInterface myInstance = (IMyInterface) Injector.Org.getInstance(IMyInterface.class, 'MyNamedBinding');
 
+Register the Module: You need to register your module with ForceDI. This is typically done in a trigger, a Visualforce page controller, or a Lightning component controller. Here's an example:
+Injector.Org.registerModule(WelcomeAppBindings.class);
+
    */
 }
