@@ -5,6 +5,15 @@
 // You can also execute the entire file by running the command:
 //     SFDX: Execute Anonymous Apex with Editor Contents
 
+/*
 System.debug(Utility.getObjectRelationships('Case'));
 
 System.debug(Utility.getAllObjectNamesAndLabels());
+
+Map<Id, Integer> childCountByParentId = Utility.getChildRecordCounts('Contact', 'AccountId');
+System.debug(childCountByParentId);
+
+Integer childCount = Utility.getChildRecordCountsForARelationship('Contact', 'AccountId');
+System.debug(childCount);*/
+
+Utility.countChildRecordsForObject('Case');

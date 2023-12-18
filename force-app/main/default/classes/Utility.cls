@@ -38,6 +38,50 @@ public class Utility {
     return JSON.serialize(objectRelationships);
   }
 
+  public static Map<Id, Integer> getChildRecordCounts(String childObjectName, String relationshipFieldName) {
+    String query = 'SELECT ' + relationshipFieldName + ', COUNT(Id) childCount FROM ' + childObjectName + ' GROUP BY ' + relationshipFieldName;
+    List<AggregateResult> results = Database.query(query);
+
+    Map<Id, Integer> childCountByParentId = new Map<Id, Integer>();
+    for (AggregateResult result : results) {
+      Id parentId = (Id) result.get(relationshipFieldName);
+      Integer count = (Integer) result.get('childCount');
+      childCountByParentId.put(parentId, count);
+    }
+
+    return childCountByParentId;
+  }
+
+  public static void countChildRecordsForObject(String parentObjectName) {
+    // Get the describe result for the object
+    Schema.DescribeSObjectResult dsr = Schema.getGlobalDescribe().get(parentObjectName).getDescribe();
+
+    // Iterate over all child relationships
+    for (Schema.ChildRelationship cr : dsr.getChildRelationships()) {
+      // Get the child object name and relationship field name
+      String childObjectName = cr.getChildSObject().getDescribe().getName();
+      String relationshipFieldName = cr.getField().getDescribe().getName();
+
+      if (cr.getChildSObject().getDescribe().isQueryable() && cr.getField().getDescribe().isAccessible() && cr.getField().getDescribe().isFilterable() && !childObjectName.equals('ContentDocumentLink')) {
+        System.debug('Parent Object: ' + parentObjectName + ', Child Object: ' + childObjectName + ', Relationship Field: ' + relationshipFieldName);
+        // Get the child record count
+        Integer count = getChildRecordCountsForARelationship(childObjectName, relationshipFieldName);
+
+        System.debug('Parent Object: ' + parentObjectName + ', Child Object: ' + childObjectName + ', Relationship Field: ' + relationshipFieldName + ', Child Record Count: ' + count);
+      }else {
+        System.debug('Parent Object: ' + parentObjectName + ', Child Object: ' + childObjectName + ', Relationship Field: ' + relationshipFieldName + ', Child Record Count: Not Queryable');
+      }
+
+    }
+  }
+
+  public static Integer getChildRecordCountsForARelationship(String childObjectName, String relationshipFieldName) {
+    String query = 'SELECT COUNT() FROM ' + childObjectName + ' WHERE ' + relationshipFieldName + ' != null';
+    Integer count = Database.countQuery(query);
+
+    return count;
+  }
+
   /*
   public static Object createObjectFromMetadata(String metadataName) {
     // Query the custom metadata
