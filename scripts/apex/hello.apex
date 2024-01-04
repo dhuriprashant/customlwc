@@ -16,4 +16,6 @@ System.debug(childCountByParentId);
 Integer childCount = Utility.getChildRecordCountsForARelationship('Contact', 'AccountId');
 System.debug(childCount);*/
 
-Utility.countChildRecordsForObject('Case');
+//Utility.countChildRecordsForObject('Case');
+
+System.debug(Utility.getObjectRecordCounts());

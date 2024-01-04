@@ -23,7 +23,9 @@ public class Utility {
     for (Schema.ChildRelationship childRelationship : childRelationships) {
       Schema.SObjectField field = childRelationship.getField();
       Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
-      String relationshipType = fieldDescribe.getRelationshipOrder() == 0 ? 'Master-Detail' : 'Lookup';
+      String relationshipType = fieldDescribe.getRelationshipOrder() == 0
+        ? 'Master-Detail'
+        : 'Lookup';
       objectRelationships.add(
         'Child Object: ' +
           childRelationship.getChildSObject() +
@@ -38,8 +40,17 @@ public class Utility {
     return JSON.serialize(objectRelationships);
   }
 
-  public static Map<Id, Integer> getChildRecordCounts(String childObjectName, String relationshipFieldName) {
-    String query = 'SELECT ' + relationshipFieldName + ', COUNT(Id) childCount FROM ' + childObjectName + ' GROUP BY ' + relationshipFieldName;
+  public static Map<Id, Integer> getChildRecordCounts(
+    String childObjectName,
+    String relationshipFieldName
+  ) {
+    String query =
+      'SELECT ' +
+      relationshipFieldName +
+      ', COUNT(Id) childCount FROM ' +
+      childObjectName +
+      ' GROUP BY ' +
+      relationshipFieldName;
     List<AggregateResult> results = Database.query(query);
 
     Map<Id, Integer> childCountByParentId = new Map<Id, Integer>();
@@ -54,7 +65,9 @@ public class Utility {
 
   public static void countChildRecordsForObject(String parentObjectName) {
     // Get the describe result for the object
-    Schema.DescribeSObjectResult dsr = Schema.getGlobalDescribe().get(parentObjectName).getDescribe();
+    Schema.DescribeSObjectResult dsr = Schema.getGlobalDescribe()
+      .get(parentObjectName)
+      .getDescribe();
 
     // Iterate over all child relationships
     for (Schema.ChildRelationship cr : dsr.getChildRelationships()) {
@@ -62,76 +75,95 @@ public class Utility {
       String childObjectName = cr.getChildSObject().getDescribe().getName();
       String relationshipFieldName = cr.getField().getDescribe().getName();
 
-      if (cr.getChildSObject().getDescribe().isQueryable() && cr.getField().getDescribe().isAccessible() && cr.getField().getDescribe().isFilterable() && !childObjectName.equals('ContentDocumentLink')) {
-        System.debug('Parent Object: ' + parentObjectName + ', Child Object: ' + childObjectName + ', Relationship Field: ' + relationshipFieldName);
+      if (
+        cr.getChildSObject().getDescribe().isQueryable() &&
+        cr.getField().getDescribe().isAccessible() &&
+        cr.getField().getDescribe().isFilterable() &&
+        !childObjectName.equals('ContentDocumentLink')
+      ) {
+        System.debug(
+          'Parent Object: ' +
+            parentObjectName +
+            ', Child Object: ' +
+            childObjectName +
+            ', Relationship Field: ' +
+            relationshipFieldName
+        );
         // Get the child record count
-        Integer count = getChildRecordCountsForARelationship(childObjectName, relationshipFieldName);
+        Integer count = getChildRecordCountsForARelationship(
+          childObjectName,
+          relationshipFieldName
+        );
 
-        System.debug('Parent Object: ' + parentObjectName + ', Child Object: ' + childObjectName + ', Relationship Field: ' + relationshipFieldName + ', Child Record Count: ' + count);
-      }else {
-        System.debug('Parent Object: ' + parentObjectName + ', Child Object: ' + childObjectName + ', Relationship Field: ' + relationshipFieldName + ', Child Record Count: Not Queryable');
+        System.debug(
+          'Parent Object: ' +
+            parentObjectName +
+            ', Child Object: ' +
+            childObjectName +
+            ', Relationship Field: ' +
+            relationshipFieldName +
+            ', Child Record Count: ' +
+            count
+        );
+      } else {
+        System.debug(
+          'Parent Object: ' +
+            parentObjectName +
+            ', Child Object: ' +
+            childObjectName +
+            ', Relationship Field: ' +
+            relationshipFieldName +
+            ', Child Record Count: Not Queryable'
+        );
       }
-
     }
   }
 
-  public static Integer getChildRecordCountsForARelationship(String childObjectName, String relationshipFieldName) {
-    String query = 'SELECT COUNT() FROM ' + childObjectName + ' WHERE ' + relationshipFieldName + ' != null';
+  public static Integer getChildRecordCountsForARelationship(
+    String childObjectName,
+    String relationshipFieldName
+  ) {
+    String query =
+      'SELECT COUNT() FROM ' +
+      childObjectName +
+      ' WHERE ' +
+      relationshipFieldName +
+      ' != null';
     Integer count = Database.countQuery(query);
 
     return count;
   }
 
-  /*
-  public static Object createObjectFromMetadata(String metadataName) {
-    // Query the custom metadata
-    MyCustomMetadata__mdt metadata = [SELECT DeveloperName FROM MyCustomMetadata__mdt WHERE DeveloperName = :metadataName LIMIT 1];
+  public static Map<String, Integer> getObjectRecordCounts(
+    List<String> objectNames
+  ) {
+    Map<String, Integer> recordCounts = new Map<String, Integer>();
+    for (String objectName : objectNames) {
+      try {
+        Integer recordCount = Database.countQuery(
+          'SELECT COUNT() FROM ' + objectName
+        );
+        recordCounts.put(objectName, recordCount);
+      } catch (Exception e) {
+        // Ignore objects that we can't query
+      }
+    }
+    return recordCounts;
+  }
 
-    // Get the class name from the custom metadata
-    String className = metadata.DeveloperName;
-
-    // Get a Type object for the class
-    Type t = Type.forName(className);
-
-    // Check if the class implements MyInterface
-    if (MyInterface.class.isAssignableFrom(t)) {
-      System.debug('The class implements MyInterface');
-    } else {
-      System.debug('The class does not implement MyInterface');
+  public static Map<String, Integer> getObjectRecordCounts() {
+    Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
+    List<String> objectNames = new List<String>(globalDescribe.keySet());
+    Map<String, Integer> recordCounts = new Map<String, Integer>();
+    for (Integer i = 0; i < objectNames.size(); i += 100) {
+      List<String> subsetOfObjectNames = new List<String>();
+      for (Integer j = i; j < Math.min(i + 100, objectNames.size()); j++) {
+        subsetOfObjectNames.add(objectNames[j]);
+      }
+      recordCounts.putAll(Utility.getObjectRecordCounts(subsetOfObjectNames));
+      break;
     }
 
-    // Create a new instance of the class
-    Object obj = t.newInstance();
-
-    return obj;
-  }*/
-
-
-  /*
-  public class WelcomeAppBindings extends di_Module {
-    public override void configure() {
-
-	// Query the custom metadata
-    List<BindingMetadata__mdt> bindings = [SELECT Interface__c, Implementation__c, OutOfOffice__c FROM BindingMetadata__mdt];
-
-    // Iterate over the results and set up the bindings
-    for (BindingMetadata__mdt binding : bindings) {
-        // Get the classes for the interface and implementation
-        Type interfaceType = Type.forName(binding.Interface__c);
-        Type implementationType = Type.forName(binding.Implementation__c);
-
-		// Named binding
-        bind(interfaceType).named('MyNamedBinding').to(implementationType);
-    }
-
-    }
-}
-
-And here's how you can get an instance of a named binding:
-IMyInterface myInstance = (IMyInterface) Injector.Org.getInstance(IMyInterface.class, 'MyNamedBinding');
-
-Register the Module: You need to register your module with ForceDI. This is typically done in a trigger, a Visualforce page controller, or a Lightning component controller. Here's an example:
-Injector.Org.registerModule(WelcomeAppBindings.class);
-
-   */
+    return recordCounts;
+  }
 }
