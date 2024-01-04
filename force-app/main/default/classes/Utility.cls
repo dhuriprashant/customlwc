@@ -166,4 +166,20 @@ public class Utility {
 
     return recordCounts;
   }
+
+  public static List<String> getRequiredFields(String objectName) {
+    List<String> requiredFields = new List<String>();
+    Map<String, Schema.SObjectField> fieldMap = Schema.getGlobalDescribe()
+      .get(objectName)
+      .getDescribe()
+      .fields.getMap();
+    for (String fieldName : fieldMap.keySet()) {
+      Schema.DescribeFieldResult fieldDescribe = fieldMap.get(fieldName)
+        .getDescribe();
+      if (!fieldDescribe.isNillable() && fieldDescribe.isCreateable()) {
+        requiredFields.add(fieldName);
+      }
+    }
+    return requiredFields;
+  }
 }

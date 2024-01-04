@@ -18,4 +18,6 @@ System.debug(childCount);*/
 
 //Utility.countChildRecordsForObject('Case');
 
-System.debug(Utility.getObjectRecordCounts());
+//System.debug(Utility.getObjectRecordCounts());
+
+System.debug(Utility.getRequiredFields('Case'));
