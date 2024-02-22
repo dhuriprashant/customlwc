@@ -1,5 +1,6 @@
 // myMapComponent.js
 import { LightningElement, track } from "lwc";
+import getmap from "@salesforce/apex/myMapController.getMap";
 
 export default class MyMapComponent extends LightningElement {
   myMap = {
@@ -15,12 +16,32 @@ export default class MyMapComponent extends LightningElement {
     hid2: "rtes1234"
   };
 
-  @track myMapArray = Object.keys(this.myMap)
+  @track myMapArray;
+
+  /*
+  this.myMapArray = Object.keys(this.myMap)
     .filter((key) => Array.isArray(this.myMap[key]))
     .map((key) => ({
       key: key,
       value: this.myMap[key]
-    }));
+    }));*/
+
+  //call getmap method from myMapController class on connectedCallback
+  connectedCallback() {
+    getmap()
+      .then((result) => {
+        this.myMap = result;
+        this.myMapArray = Object.keys(this.myMap)
+          .filter((key) => Array.isArray(this.myMap[key]))
+          .map((key) => ({
+            key: key,
+            value: this.myMap[key]
+          }));
+      })
+      .catch((error) => {
+        this.error = error;
+      });
+  }
 
   columns = [
     { label: "Name", fieldName: "name" },
