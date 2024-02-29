@@ -1,0 +1,7 @@
+<template>
+  <template if:true={selectedAccountDetails}>
+    <template for:each={selectedAccountDetails} for:item="item">
+      <p key={item.key}>{item.key}: {item.value.accountName}</p>
+    </template>
+  </template>
+</template>
