@@ -5,10 +5,23 @@ public with sharing class myMapController {
     myMap m = new myMap();
     m.lat = '37.7749';
     m.longg = '-122.4194';
-    m.markers = new List<Marker>();
-    m.markers.add(new Marker('37.7749', '-122.4194', 'San Francisco', '1'));
-    m.markers.add(new Marker('37.7749', '-122.4194', 'San Francisco', '2'));
-    m.markers.add(new Marker('37.7749', '-122.4194', 'San Francisco', '3'));
+    m.markersBlue = new List<Marker>();
+    m.markersBlue.add(new Marker('37.7749', '-122.4194', 'San Francisco', '1'));
+    m.markersBlue.add(new Marker('37.7749', '-122.4194', 'San ', '2'));
+    m.markersBlue.add(new Marker('37.7749', '-122.4194', 'San Franc', '3'));
+
+    m.markersRed = new List<Marker>();
+    m.markersRed.add(new Marker('37.7749', '-122.4194', 'San Francisco', '1'));
+    m.markersRed.add(new Marker('37.7749', '-122.4194', 'San ', '2'));
+    m.markersRed.add(new Marker('37.7749', '-122.4194', 'San Franc', '3'));
+
+    m.markersGreen = new List<Marker>();
+    m.markersGreen.add(
+      new Marker('37.7749', '-122.4194', 'San Francisco', '1')
+    );
+    m.markersGreen.add(new Marker('37.7749', '-122.4194', 'San ', '2'));
+    m.markersGreen.add(new Marker('37.7749', '-122.4194', 'San Franc', '3'));
+
     return m;
   }
 
@@ -19,7 +32,11 @@ public with sharing class myMapController {
     public String longg { get; set; }
     //add an list of markers
     @AuraEnabled
-    public List<Marker> markers { get; set; }
+    public List<Marker> markersBlue { get; set; }
+    @AuraEnabled
+    public List<Marker> markersRed { get; set; }
+    @AuraEnabled
+    public List<Marker> markersGreen { get; set; }
   }
 
   class Marker {

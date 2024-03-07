@@ -18,6 +18,33 @@ export default class MyMapComponent extends LightningElement {
 
   @track myMapArray;
 
+  columnMap = new Map([
+    [
+      "markersBlue",
+      [
+        { label: "Name", fieldName: "name" },
+        { label: "Value", fieldName: "value" }
+      ]
+    ],
+    [
+      "markersRed",
+      [
+        { label: "Name", fieldName: "name" },
+        { label: "Value", fieldName: "value" },
+        { label: "lat", fieldName: "lat" }
+      ]
+    ],
+    [
+      "markersGreen",
+      [
+        { label: "Name", fieldName: "name" },
+        { label: "Value", fieldName: "value" },
+        { label: "lat", fieldName: "lat" },
+        { label: "long", fieldName: "long" }
+      ]
+    ]
+  ]);
+
   /*
   this.myMapArray = Object.keys(this.myMap)
     .filter((key) => Array.isArray(this.myMap[key]))
@@ -35,7 +62,8 @@ export default class MyMapComponent extends LightningElement {
           .filter((key) => Array.isArray(this.myMap[key]))
           .map((key) => ({
             key: key,
-            value: this.myMap[key]
+            value: this.myMap[key],
+            displayColumns: this.columnMap.get(key)
           }));
       })
       .catch((error) => {
@@ -43,8 +71,28 @@ export default class MyMapComponent extends LightningElement {
       });
   }
 
-  columns = [
+  @track columns = [
     { label: "Name", fieldName: "name" },
     { label: "Value", fieldName: "value" }
   ];
+
+  /*
+  //define handleResetColumnWidth
+  handleResetColumnWidth() {
+    // Force a re-render of the table by assigning a new array to this.columns
+    this.columns = [...this.columns];
+  }*/
+
+  handleResetColumnWidth(event) {
+    // Retrieve the key from the event
+    const key = event.target.dataset.key;
+
+    // Find the item with the given key
+    const item = this.myMapArray.find((i) => i.key === key);
+
+    // Reset displayColumns to its original state
+    if (item) {
+      item.displayColumns = [...this.columnMap.get(key)];
+    }
+  }
 }

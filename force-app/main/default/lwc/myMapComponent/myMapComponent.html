@@ -2,11 +2,19 @@
 <template>
   <template for:each={myMapArray} for:item="item">
     <lightning-card key={item.key} title={item.key}>
+      <div class="slds-m-around_medium">
+        <lightning-button
+          label="Reset Column Width"
+          data-key={item.key}
+          onclick={handleResetColumnWidth}
+        ></lightning-button>
+      </div>
+
       <div>
         <lightning-datatable
           key-field="name"
           data={item.value}
-          columns={columns}
+          columns={item.displayColumns}
         >
         </lightning-datatable>
       </div>
